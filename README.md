@@ -5,9 +5,9 @@ A continuación se muestra el código traducido al español y las instrucciones 
 
 - **TX_A.ino** - Código para el transmisor A  
 - **TX_B.ino** - Código para el transmisor B (igual a A, solo cambia `deviceID`)  
-- TX_C.ino** - Código para el transmisor C (igual a A, solo cambia `deviceID`)  
+- **TX_C.ino** - Código para el transmisor C (igual a A, solo cambia `deviceID`)  
 - **Movil.ino** - Código para el nodo móvil (M)  
-- Central.ino** - Código para el nodo central (T: central nodo)
+- **Central.ino** - Código para el nodo central (T: central nodo)
 
 Antes de descargar el código, asegúrese de que:
 
