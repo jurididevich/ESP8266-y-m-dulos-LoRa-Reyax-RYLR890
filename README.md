@@ -296,6 +296,7 @@ Después de la primera configuración exitosa de los módulos (ADDRESS, NETWORKI
 La depuración se puede observar en el Serial Monitor del IDE de Arduino.
 
 Código (Movil.ino):
+
 #include <SoftwareSerial.h>
 
 // Pines recomendados (ajustar según su wiring):
@@ -425,6 +426,7 @@ void sendLoRaCmd(String cmd) {
     }
   }
 }
+
 Recomendaciones:
 
 Si el módulo LoRa ya está preconfigurado, comente las líneas en setup() con sendLoRaCmd(«AT+...») para ahorrar tiempo y evitar configuraciones repetidas.
