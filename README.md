@@ -1,8 +1,7 @@
-# ESP8266-y-m-dulos-LoRa-Reyax-RYLR890
-La estructura del proyecto asume que tendrás archivos .ino separados para cada nodo: TX_A.ino, TX_B.ino, TX_C.ino (transmisores), Movil.ino (móvil) y Central.ino (central).
 A continuación se muestra el código traducido al español y las instrucciones para cada dispositivo. Todos los comentarios, instrucciones y texto están ahora en español. La estructura del proyecto asume que tendrás archivos .ino separados para cada nodo: TX_A.ino, TX_B.ino, TX_C.ino (transmisores), Movil.ino (móvil) y Central.ino (central).
 
 **Estructura general del proyecto:**
+
 
 - **TX_A.ino** - Código para el transmisor A  
 - **TX_B.ino** - Código para el transmisor B (igual a A, solo cambia `deviceID`)  
@@ -262,41 +261,42 @@ void sendLoRaCmd(String cmd) {
 
 ### Movil.ino
 
-El código de Movil.ino (nodo M) se mantiene sin cambios respecto a las recomendaciones anteriores, ya que el usuario ha indicado que el código de móvil se mantenga sin cambios. Si es necesario, adapte los comentarios de Movil.ino al español, de forma similar al resto de ficheros.
-ejemplo de código final para nodo móvil (M) en entorno Arduino IDE. El código está escrito sobre ESP8266 (ej. NodeMCU) con módulo LoRa Reyax RYLR890 y tiene en cuenta las recomendaciones anteriores. Todos los comentarios y textos están en español.
+A continuación se muestra el ejemplo de código final para el nodo móvil (M) en el entorno Arduino IDE. El código está escrito en ESP8266 (por ejemplo, NodeMCU) con módulo LoRa Reyax RYLR890 y tiene en cuenta las recomendaciones anteriores. 
 
-Supuestos y condiciones:
+**Predisposiciones y condiciones:**
 
-Nodos:
+- Nodos:
+    
+    - T (Central): `AT+ADDRESS=1`.
+    - M (Móvil): `AT+DIRECCIÓN=2`.
+    - A: `EN+DIRECCIÓN=3`.
+    - B: `EN+DIRECCIÓN=4`.
+    - C: `EN+DIRECCIÓN=5`.
+- Todos los nodos tienen el mismo `NETWORKID`, `BAND`, `PARAMETER`. Por ejemplo
+    
+    - `AT+NETWORKID=10`.
+    - AT+BAND=915000000
+    - `AT+PARAMETER=10,7,1,7`.
+- Ajuste la velocidad UART a 9600 baudios para un funcionamiento más fiable con SoftwareSerial. En todos los módulos, ejecuta el comando `AT+IPR=9600` una vez (puede ser a través de Serial Monitor) para mantener la velocidad en el módulo LoRa.
+    
+- Formato del mensaje:  
+    Los nodos A,B,C envían un identificador simple («A», «B», «C»). El módulo LoRa en M en la recepción genera una cadena de la forma:  
+    `+RCV=<dirección de origen>,<longitud>,<contenido>,<RSSI>`.  
+    Por ejemplo `+RCV=3,1,A,-57.0`.  
+    Aquí `-57.0` es el RSSI añadido automáticamente por el módulo.
+    
+- El nodo móvil (M) recibe 3 mensajes de A,B,C, calcula las distancias y las envía al nodo T en el formato:  
+    `A:XX.XX,B:YY.YY,C:ZZ.ZZ`.  
+    Utilizando el comando `AT+SEND=1,<longitud>,<mensaje>`.
+    
+- Después de la primera configuración exitosa de los módulos (DIRECCIÓN, NETWORKID, BANDA, PARÁMETRO), estos comandos pueden ser comentados en el código para evitar instalaciones repetidas. Si el módulo ya está configurado, comentar las llamadas a `sendLoRaCmd(«AT+...»)` en `setup()`.
+    
+- La depuración se puede observar en el Serial Monitor Arduino IDE.
+    
 
-T (Central): AT+ADDRESS=1
-M (Móvil): AT+ADDRESS=2
-A: AT+DIRECCIÓN=3
-B: AT+DIRECCIÓN=4
-C: AT+DIRECCIÓN=5
-Todos los nodos tienen el mismo NETWORKID, BAND, PARAMETER. Por ejemplo
+**Código (Movil.ino):**
 
-AT+NETWORKID=10
-AT+BAND=915000000
-AT+PARAMETER=10,7,1,7
-Velocidad UART ajustada a 9600 baudios para un trabajo más fiable con SoftwareSerial. En todos los módulos, ejecute el comando AT+IPR=9600 una vez (se puede hacer a través de Serial Monitor) para mantener la velocidad en el módulo LoRa.
-
-Formato del mensaje:
-Los nodos A,B,C envían un identificador simple («A», «B», «C»). El módulo LoRa en M a la recepción genera una cadena de la forma:
-+RCV=<dirección de origen>,<longitud>,<contenido>,<RSSI>.
-Por ejemplo: +RCV=3,1,A,-57.0
-Aquí -57.0 es el RSSI añadido automáticamente por el módulo.
-
-El nodo móvil (M) recibe 3 mensajes de A,B,C, calcula las distancias y las envía al nodo T en el formato:
-A:XX.XX,B:YY.YY,C:ZZ.ZZ
-Utilizando el comando AT+SEND=1,<longitud>,<mensaje>.
-
-Después de la primera configuración exitosa de los módulos (ADDRESS, NETWORKID, BAND, PARAMETER), estos comandos pueden ser comentados en el código para evitar instalaciones repetidas. Si el módulo ya está configurado, comentar las llamadas sendLoRaCmd(«AT+...») en setup().
-
-La depuración se puede observar en el Serial Monitor del IDE de Arduino.
-
-Código (Movil.ino):
-
+```cpp
 #include <SoftwareSerial.h>
 
 // Pines recomendados (ajustar según su wiring):
@@ -426,15 +426,19 @@ void sendLoRaCmd(String cmd) {
     }
   }
 }
+```
 
-Recomendaciones:
+Recomendaciones:**
 
-Si el módulo LoRa ya está preconfigurado, comente las líneas en setup() con sendLoRaCmd(«AT+...») para ahorrar tiempo y evitar configuraciones repetidas.
-Calibre RSSI_ref y n si es necesario.
-Considera el uso de una UART hardware o una librería RadioLib para mejorar la estabilidad.
-Los transmisores (A,B,C) envían sólo un identificador («A», «B», «C»). El módulo LoRa en M añade automáticamente RSSI en la recepción, simplificando la lógica.
-El nodo T recibirá un mensaje de M con el formato +RCV=2,<longitud>,A:XX.XX,B:YY.YY,C:ZZ.ZZ,<RSSI> y podrá mostrarlo en el monitor.
-Este código está listo para cargar en el entorno Arduino IDE para ESP8266 (NodeMCU).
+- Si el módulo LoRa ya está preconfigurado, comenta las líneas en `setup()` con `sendLoRaCmd(«AT+...»)` para ahorrar tiempo y evitar configuraciones repetidas.
+- Calibre RSSI_ref y n si es necesario.
+- Considera el uso de una UART hardware o una librería RadioLib para mejorar la estabilidad.
+- Los transmisores (A,B,C) envían sólo un identificador («A», «B», «C»). El módulo LoRa en M añade automáticamente RSSI en la recepción, simplificando la lógica.
+- El nodo T recibirá un mensaje de M con el formato `+RCV=2,<longitud>,A:XX.XX,B:YY.YY,C:ZZ.ZZ,<RSSI>` y podrá mostrarlo en el monitor.
+
+Este código está listo para ser cargado en el entorno Arduino IDE para ESP8266 (NodeMCU).
+
+
 ---
 
 ### Instrucciones finales:
@@ -461,3 +465,8 @@ Este código está listo para cargar en el entorno Arduino IDE para ESP8266 (Nod
    - Suba cada archivo al dispositivo correspondiente (A,B,C,M,T).  
    - Encienda todos los nodos.  
    - A,B,C enviarán datos a M. M calculará distancias y enviará a T. T mostrará en el monitor serial las distancias A,B,C.
+
+С этими инструкциями и кодом, все комментарии и пояснения переведены на испанский язык, и у вас есть полная структура проекта для работы в Arduino IDE.
+
+
+
