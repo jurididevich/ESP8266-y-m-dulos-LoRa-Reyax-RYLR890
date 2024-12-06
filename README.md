@@ -466,7 +466,9 @@ Este código está listo para ser cargado en el entorno Arduino IDE para ESP8266
    - Encienda todos los nodos.  
    - A,B,C enviarán datos a M. M calculará distancias y enviará a T. T mostrará en el monitor serial las distancias A,B,C.
 
-С этими инструкциями и кодом, все комментарии и пояснения переведены на испанский язык, и у вас есть полная структура проекта для работы в Arduino IDE.
+
+
+
 
 
 
